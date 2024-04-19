@@ -1,0 +1,20 @@
+{
+    "claim_generator": "c2pa-gen/1.0.0",
+    "format": "image/jpeg",
+    "title": "c2pa-tool-test.mp4",
+    "label": "This is a test image for local signer",
+    "assertions": [
+        {
+            "label": "c2pa.actions",
+            "data": {
+                "actions": [
+                    {
+                        "action": "c2pa.created",
+                        "digitalSourceType": "https://picsum.photos/",
+                        "softwareAgent": "Lorem Picsum"
+                    }
+                ]
+            }
+        }
+    ]
+}
