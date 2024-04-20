@@ -20,9 +20,7 @@ contract Verificador is ERC721, ERC721URIStorage, Ownable {
         string title;
     }
 
-    constructor(
-        address initialOwner
-    ) ERC721("Verificador", "VDR") Ownable(initialOwner) {}
+    constructor() ERC721("Verificador", "VDR") Ownable(_msgSender()) {}
 
     function setSPInstance(address instance) external onlyOwner {
         spInstance = ISP(instance);

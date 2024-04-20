@@ -3,6 +3,7 @@ const { exec } = require('child_process');
 const app = express()
 const PORT = 3000;
 const multer = require('multer');
+const { uploadFile } = require("./functions/storage");
 
 // Multer Configuration
 const storage = multer.diskStorage({
@@ -33,19 +34,30 @@ app.post('/upload', upload.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
     }
-    exec(`c2patool uploads/${req.file.filename} -c '${JSON.stringify(JSON.parse(metadata))}' -o uploads/signed-${req.file.filename}`, (error, stdout, stderr) => {
+    exec(`c2patool "uploads/${req.file.filename}" -c '${JSON.stringify(JSON.parse(metadata))}' -o "uploads/signed-${req.file.filename}"`, (error, stdout, stderr) => {
         if (error) {
             console.error(`exec error: ${error}`);
-            return;
+            return res.json({
+                success: false,
+                message: 'Error signing file',
+                error
+            })
         }
-        if (stderr) {
-            console.error(`stderr: ${stderr}`);
-            return;
-        }
-        res.json({
-            success: true,
-            message: 'File uploaded successfully and signed!',
-            filename: req.file.filename,
+        // if (stderr) {
+        //     console.error(`stderr: ${stderr}`);
+        //     return res.json({
+        //         success: false,
+        //         message: 'Error signing file',
+        //         error: stderr
+        //     })
+        // }
+        uploadFile(__dirname + `/uploads/signed-${req.file.filename}`).then((response) => {
+            res.json({
+                success: true,
+                message: 'File uploaded successfully and signed!',
+                filename: req.file.filename,
+                fileHash: response.data.Hash
+            })
         })
     })
 });
