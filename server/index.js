@@ -1,7 +1,7 @@
 const express = require("express")
 const { exec } = require('child_process');
 const app = express()
-const PORT = 3000;
+const PORT = 5000;
 const cors = require('cors');
 const multer = require('multer');
 const { uploadFile } = require("./functions/storage");
