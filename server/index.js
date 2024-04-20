@@ -5,6 +5,7 @@ const PORT = 5000;
 const cors = require('cors');
 const multer = require('multer');
 const { uploadFile } = require("./functions/storage");
+const { createAttestation } = require("./functions/contract");
 
 // Multer Configuration
 const storage = multer.diskStorage({
@@ -31,7 +32,7 @@ app.get("/", (req, res) => {
 })
 
 app.post('/upload', upload.single('file'), (req, res) => {
-    const { metadata } = req.body;
+    const { metadata, address } = req.body;
     // console.log(metadata);
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
@@ -54,11 +55,27 @@ app.post('/upload', upload.single('file'), (req, res) => {
         //     })
         // }
         uploadFile(__dirname + `/uploads/signed-${req.file.filename}`).then((response) => {
-            res.json({
-                success: true,
-                message: 'File uploaded successfully and signed!',
-                filename: req.file.filename,
-                fileHash: response.data.Hash
+            console.log('Label: ', JSON.parse(metadata).title);
+            console.log('Application: ', JSON.parse(metadata).claim_generator);
+            createAttestation(
+                address,
+                response.data.Hash,
+                JSON.parse(metadata).claim_generator,
+                JSON.parse(metadata).title,
+            ).then((hash) => {
+                res.json({
+                    success: true,
+                    message: 'File uploaded successfully and signed!',
+                    filename: req.file.filename,
+                    fileHash: response.data.Hash,
+                    transactionHash: hash
+                })
+            }).catch((err) => {
+                res.json({
+                    success: false,
+                    message: 'Error signing file',
+                    error: err
+                })
             })
         })
     })
