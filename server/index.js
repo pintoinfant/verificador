@@ -2,6 +2,7 @@ const express = require("express")
 const { exec } = require('child_process');
 const app = express()
 const PORT = 3000;
+const cors = require('cors');
 const multer = require('multer');
 const { uploadFile } = require("./functions/storage");
 
@@ -18,6 +19,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
+app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
