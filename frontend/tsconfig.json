@@ -18,6 +18,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/contact.jsx", "components/Index/BetaSignUp.jsx", "pages/api/topics/create.ts", "pages/api/all-apis", "components/Utilities/ChildrenBlur.jsx", "pages/upload.jsx", "pages/verify.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/contact.jsx", "components/Index/BetaSignUp.jsx", "pages/api/topics/create.ts", "pages/api/all-apis", "components/Utilities/ChildrenBlur.jsx", "pages/upload.tsx", "pages/verify.tsx"],
   "exclude": ["node_modules"]
 }
