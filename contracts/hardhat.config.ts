@@ -22,7 +22,12 @@ const config: HardhatUserConfig = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
-    
+    arbitrum: {
+      chainId: 421614,
+      url: "https://sepolia-rollup.arbitrum.io/rpc",
+      accounts: [process.env.PRIVATE_KEY || ""],
+    },
+
   },
   etherscan: {
     apiKey: {
@@ -39,7 +44,7 @@ const config: HardhatUserConfig = {
       },
     ],
   },
-  
+
 };
 
 export default config;
