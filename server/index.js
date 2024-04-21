@@ -6,6 +6,7 @@ const cors = require('cors');
 const multer = require('multer');
 const { uploadFile } = require("./functions/storage");
 const { createAttestation } = require("./functions/contract");
+const { metadataGenerator } = require("./functions/metadata");
 
 // Multer Configuration
 const storage = multer.diskStorage({
@@ -32,12 +33,15 @@ app.get("/", (req, res) => {
 })
 
 app.post('/upload', upload.single('file'), (req, res) => {
-    const { metadata, address } = req.body;
+    const { claimGenerator, description, address } = req.body;
     // console.log(metadata);
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
     }
-    exec(`c2patool "uploads/${req.file.filename}" -c '${JSON.stringify(JSON.parse(metadata))}' -o "uploads/signed-${req.file.filename}"`, (error, stdout, stderr) => {
+    let metadata = metadataGenerator(claimGenerator, req.file.mimetype, req.file.originalname, description);
+    // console.log(metadata)
+    metadata = JSON.stringify(metadata)
+    exec(`c2patool "uploads/${req.file.filename}" -c '${metadata}' -o "uploads/signed-${req.file.filename}"`, (error, stdout, stderr) => {
         if (error) {
             console.error(`exec error: ${error}`);
             return res.json({
@@ -46,15 +50,8 @@ app.post('/upload', upload.single('file'), (req, res) => {
                 error
             })
         }
-        // if (stderr) {
-        //     console.error(`stderr: ${stderr}`);
-        //     return res.json({
-        //         success: false,
-        //         message: 'Error signing file',
-        //         error: stderr
-        //     })
-        // }
         uploadFile(__dirname + `/uploads/signed-${req.file.filename}`).then((response) => {
+            console.log(JSON.parse(metadata))
             console.log('Label: ', JSON.parse(metadata).title);
             console.log('Application: ', JSON.parse(metadata).claim_generator);
             createAttestation(
@@ -81,6 +78,24 @@ app.post('/upload', upload.single('file'), (req, res) => {
     })
 });
 
+app.post('/verify', upload.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+    exec(`c2patool "uploads/${req.file.filename}"`, (error, stdout, stderr) => {
+        if (error) {
+            res.json({
+                success: false,
+                message: 'Error verifying file',
+            })
+        }
+        res.json({
+            success: true,
+            message: 'File verified successfully',
+            data: JSON.parse(stdout)
+        })
+    })
+})
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
